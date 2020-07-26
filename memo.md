@@ -1,6 +1,8 @@
 # build Dockerfile 
-
 docker build -t image_name -f docker/Dockerfile.dev .
+
+# Login container with Volume
+docker run -v $(pwd)/app:/usr/src/http -it devhttpkt /bin/bash
 
 # gradle init
 ```
