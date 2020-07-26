@@ -3,13 +3,25 @@
  */
 package http
 
-class App {
-    val greeting: String
-        get() {
-            return "Hello world."
-        }
-}
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.net.InetSocketAddress
+import java.net.ServerSocket
+import java.net.SocketException
 
 fun main(args: Array<String>) {
-    println(App().greeting)
+    println("start >>>")
+    try {
+        val serverSocket = ServerSocket()
+        serverSocket.bind(InetSocketAddress("localhost", 8080))
+        serverSocket.reuseAddress = true
+        val socket = serverSocket.accept()!!
+        val reader = BufferedReader(InputStreamReader(socket.getInputStream()))
+
+        println(reader.readLine()!!)
+
+    } catch (e: SocketException) {
+        println("CAUSE: ${e.cause}, MESSAGE: ${e.message}")
+    }
+    println("<<< end")
 }
