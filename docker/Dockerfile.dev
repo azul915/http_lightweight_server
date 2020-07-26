@@ -3,6 +3,6 @@ FROM gradle:6.5.1-jdk11
 RUN apt-get update
 
 WORKDIR /usr/src/http
-COPY ./app /usr/src/http
+#COPY ./app /usr/src/http
 
 CMD ["gradle", "run"]
