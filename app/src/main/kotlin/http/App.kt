@@ -7,20 +7,31 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.InetSocketAddress
 import java.net.ServerSocket
-import java.net.SocketException
+import java.net.Socket
 
 fun main(args: Array<String>) {
+
+    // on Docker
+    //val HOST = "0.0.0.0"
+    val HOST = "localhost"
+    val PORT = 8080
     println("start >>>")
     try {
-        val serverSocket = ServerSocket()
-        serverSocket.bind(InetSocketAddress("localhost", 8080))
+        // Socket生成、IPとPort指定、SO_REUSEADDRオプション有効化
+        val serverSocket: ServerSocket = ServerSocket()
+        serverSocket.bind(InetSocketAddress(HOST, PORT))
         serverSocket.reuseAddress = true
-        val socket = serverSocket.accept()!!
-        val reader = BufferedReader(InputStreamReader(socket.getInputStream()))
+        println("listening on... ${serverSocket.localSocketAddress!!}")
 
-        println(reader.readLine()!!)
+        while (true) {
+            // 受信
+            val socket = serverSocket.accept()
+            val reader: BufferedReader = BufferedReader(InputStreamReader(socket.getInputStream()))
+            println(reader.use { it.readText() })
 
-    } catch (e: SocketException) {
+        }
+
+    } catch (e: Exception) {
         println("CAUSE: ${e.cause}, MESSAGE: ${e.message}")
     }
     println("<<< end")
