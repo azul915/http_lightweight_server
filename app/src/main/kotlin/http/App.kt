@@ -3,8 +3,7 @@
  */
 package http
 
-import java.io.BufferedReader
-import java.io.InputStreamReader
+import java.io.*
 import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
@@ -15,21 +14,35 @@ fun main(args: Array<String>) {
     //val HOST = "0.0.0.0"
     val HOST = "localhost"
     val PORT = 8080
+    val CRLF = "\r\n"
+
     println("start >>>")
+
+    // Socket生成、IPとPort指定、SO_REUSEADDRオプション有効化
+    val serverSocket: ServerSocket = ServerSocket()
+    serverSocket.bind(InetSocketAddress(HOST, PORT))
+    serverSocket.reuseAddress = true
+    println("listening on... ${serverSocket.localSocketAddress}")
+
     try {
-        // Socket生成、IPとPort指定、SO_REUSEADDRオプション有効化
-        val serverSocket: ServerSocket = ServerSocket()
-        serverSocket.bind(InetSocketAddress(HOST, PORT))
-        serverSocket.reuseAddress = true
-        println("listening on... ${serverSocket.localSocketAddress!!}")
+        // 受信
+        val socket = serverSocket.accept()
+        val br: BufferedReader = BufferedReader(InputStreamReader(socket.getInputStream()))
+        val bw: BufferedWriter = BufferedWriter(OutputStreamWriter(socket.getOutputStream()))
 
-        while (true) {
-            // 受信
-            val socket = serverSocket.accept()
-            val reader: BufferedReader = BufferedReader(InputStreamReader(socket.getInputStream()))
-            println(reader.use { it.readText() })
-
+        var header = br.readLine()
+        while (header != null && header.isNotEmpty()) {
+            header = br.readLine()
+            println(header)
         }
+
+        // Response
+        bw.write("HTTP/1.1 200 OK$CRLF")
+        bw.write("Content-Type: text/html$CRLF")
+        bw.write(CRLF)
+        bw.write("<h1>Test Kotlin!!</h1>")
+        bw.flush()
+
 
     } catch (e: Exception) {
         println("CAUSE: ${e.cause}, MESSAGE: ${e.message}")
