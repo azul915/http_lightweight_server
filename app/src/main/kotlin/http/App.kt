@@ -19,24 +19,41 @@ fun main(args: Array<String>) {
     println("start >>>")
 
     // Socket生成、IPとPort指定、SO_REUSEADDRオプション有効化
-    val serverSocket: ServerSocket = ServerSocket()
+    val serverSocket = ServerSocket()
     serverSocket.bind(InetSocketAddress(HOST, PORT))
     serverSocket.reuseAddress = true
     println("listening on... ${serverSocket.localSocketAddress}")
 
+    // リクエストヘッダ用ビルダー
+    val header: StringBuilder = StringBuilder()
+
+    // リクエストボディ
+    var body = ""
+
     try {
         // 受信
         val socket = serverSocket.accept()
-        val br: BufferedReader = BufferedReader(InputStreamReader(socket.getInputStream()))
-        val bw: BufferedWriter = BufferedWriter(OutputStreamWriter(socket.getOutputStream()))
+        val br = BufferedReader(InputStreamReader(socket.getInputStream()))
+        val bw = BufferedWriter(OutputStreamWriter(socket.getOutputStream()))
 
-        var header = br.readLine()
-        while (header != null && header.isNotEmpty()) {
-            header = br.readLine()
-            println(header)
+        // 行単位で読み込んでビルダーに追加する
+        // 空行で読込終了
+        for (line in br.lines()) {
+            if (line.isNullOrEmpty()) break
+            header.append("$line\n")
         }
 
-        // Response
+        // contentLength 出力
+        val contentLength = header.split("\n").first { it.startsWith("Content-Length") }.takeAfterColon().toInt()
+        println("contentLength: $contentLength")
+
+        if (0 < contentLength) {
+            val c = CharArray(contentLength)
+            br.read(c)
+            body = String(c)
+        }
+
+        // レスポンス
         bw.write("HTTP/1.1 200 OK$CRLF")
         bw.write("Content-Type: text/html$CRLF")
         bw.write(CRLF)
@@ -44,8 +61,18 @@ fun main(args: Array<String>) {
         bw.flush()
 
 
-    } catch (e: Exception) {
+    } catch (e: IOException) {
         println("CAUSE: ${e.cause}, MESSAGE: ${e.message}")
     }
+
     println("<<< end")
+
+    // リクエストヘッダ出力
+    println(header)
+
+    // リクエストボディ出力
+    println(body)
+
 }
+
+fun String.takeAfterColon(): String = this.split(":")[1].trim()
