@@ -43,14 +43,21 @@ fun main(args: Array<String>) {
             header.append("$line\n")
         }
 
-        // contentLength 出力
-        val contentLength = header.split("\n").first { it.startsWith("Content-Length") }.takeAfterColon().toInt()
-        println("contentLength: $contentLength")
+        // 読み込んだヘッダーを行単位に分割
+        val headerLineArray = header.split("$CRLF")
 
-        if (0 < contentLength) {
-            val c = CharArray(contentLength)
-            br.read(c)
-            body = String(c)
+        // 1行目を抽出し、リクエストメソッドを取得する
+        val requestMethod = headerLineArray.first().split(" ").first()
+        if (requestMethod == "POST" || requestMethod == "PUT") {
+
+            // リクエストボディ取得
+            val contentLengthLine = headerLineArray.firstOrNull { it.startsWith("Content-Length") } ?: "Content-Length : 0"
+            val contentLength = contentLengthLine.takeAfterColon().toInt()
+             if (0 < contentLength) {
+                val c = CharArray(contentLength)
+                br.read(c)
+                body = String(c)
+             }
         }
 
         // レスポンス
