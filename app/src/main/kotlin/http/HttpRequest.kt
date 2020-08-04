@@ -16,6 +16,10 @@ class HttpRequest(inputStream: InputStream) {
         requestBodyText = readRequestBody(br)
     }
 
+    fun headerText(): String = requestHeaderText
+
+    fun bodyText(): String = requestBodyText
+
     private fun readRequestHeader(bufferedReader: BufferedReader): String {
 
         // リクエストヘッダ用ビルダー
@@ -32,6 +36,7 @@ class HttpRequest(inputStream: InputStream) {
     }
 
     private fun readRequestBody(bufferedReader: BufferedReader): String {
+
         // 読み込んだリクエストヘッダーを行単位に分割
         val headerLineArray = requestHeaderText.split(CRLF)
 
@@ -41,9 +46,11 @@ class HttpRequest(inputStream: InputStream) {
 
         if (contentLength <= 0) return ""
 
-        // リクエストボディ取得
+        // リクエストボディを取得して返す
         val c = CharArray(contentLength)
         bufferedReader.read(c)
         return String(c)
     }
+
+    private fun String.takeAfterColon(): String = this.split(":")[1].trim()
 }

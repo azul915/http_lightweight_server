@@ -24,41 +24,18 @@ fun main(args: Array<String>) {
     serverSocket.reuseAddress = true
     println("listening on... ${serverSocket.localSocketAddress}")
 
-    // リクエストヘッダ用ビルダー
-    val header: StringBuilder = StringBuilder()
-
-    // リクエストボディ
-    var body = ""
-
     try {
         // 受信
         val socket = serverSocket.accept()
-        val br = BufferedReader(InputStreamReader(socket.getInputStream()))
+        val ins = socket.getInputStream()
         val bw = BufferedWriter(OutputStreamWriter(socket.getOutputStream()))
+        val request = HttpRequest(ins)
 
-        // 行単位で読み込んでビルダーに追加する
-        // 空行で読込終了
-        for (line in br.lines()) {
-            if (line.isNullOrEmpty()) break
-            header.append("$line\n")
-        }
+        // リクエストヘッダー出力
+        println(request.headerText())
 
-        // 読み込んだヘッダーを行単位に分割
-        val headerLineArray = header.split("$CRLF")
-
-        // 1行目を抽出し、リクエストメソッドを取得する
-        val requestMethod = headerLineArray.first().split(" ").first()
-        if (requestMethod == "POST" || requestMethod == "PUT") {
-
-            // リクエストボディ取得
-            val contentLengthLine = headerLineArray.firstOrNull { it.startsWith("Content-Length") } ?: "Content-Length : 0"
-            val contentLength = contentLengthLine.takeAfterColon().toInt()
-             if (0 < contentLength) {
-                val c = CharArray(contentLength)
-                br.read(c)
-                body = String(c)
-             }
-        }
+        // リクエストボディー出力
+        println(request.bodyText())
 
         // レスポンス
         bw.write("HTTP/1.1 200 OK$CRLF")
@@ -74,12 +51,5 @@ fun main(args: Array<String>) {
 
     println("<<< end")
 
-    // リクエストヘッダ出力
-    println(header)
-
-    // リクエストボディ出力
-    println(body)
-
 }
 
-fun String.takeAfterColon(): String = this.split(":")[1].trim()
