@@ -41,8 +41,7 @@ class HttpRequest(inputStream: InputStream) {
         val headerLineArray = requestHeaderText.split(CRLF)
 
         // リクエストヘッダーからContent-Lengthを取得する
-        val contentLengthLine = headerLineArray.firstOrNull { it.startsWith("Content-Length") } ?: "Content-Length : 0"
-        val contentLength = contentLengthLine.takeAfterColon().toInt()
+        val contentLength = headerLineArray.contentLength()
 
         if (contentLength <= 0) return ""
 
@@ -52,5 +51,9 @@ class HttpRequest(inputStream: InputStream) {
         return String(c)
     }
 
-    private fun String.takeAfterColon(): String = this.split(":")[1].trim()
+    private fun List<String>.contentLength(): Int {
+        val contentLengthLine = this.firstOrNull { it.startsWith("Content-Length") } ?: "Content-Length : 0"
+        return contentLengthLine.split(":")[1].trim().toInt()
+    }
+
 }
