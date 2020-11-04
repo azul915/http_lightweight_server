@@ -30,3 +30,15 @@ Source package (default: http):
 BUILD SUCCESSFUL in 2m 23s
 2 actionable tasks: 2 executed
 ```
+
+# test
+## GET
+```shell script
+$ curl localhost:8080
+// => <h1>Test Kotlin!!</h1>
+```
+
+## POST
+```shell script
+$ curl localhost:8080 -X POST -d "Message Body!!"
+```
