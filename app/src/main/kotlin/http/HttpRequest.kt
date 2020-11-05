@@ -6,8 +6,6 @@ import java.io.InputStreamReader
 
 class HttpRequest(private val inputStream: InputStream) {
 
-    val CRLF = "\r\n"
-
     private val requestHeaderText: String
     private val requestBodyText: String
     init {
@@ -29,7 +27,7 @@ class HttpRequest(private val inputStream: InputStream) {
         // 空行で読込終了
         for (line in bufferedReader.lines()) {
             if (line.isNullOrEmpty()) break
-            header.append("$line$CRLF")
+            header.append("$line${Constants.CRLF}")
         }
 
         return header.toString()
@@ -38,7 +36,7 @@ class HttpRequest(private val inputStream: InputStream) {
     private fun readRequestBody(bufferedReader: BufferedReader): String {
 
         // 読み込んだリクエストヘッダーを行単位に分割
-        val headerLineArray = requestHeaderText.split(CRLF)
+        val headerLineArray = requestHeaderText.split(Constants.CRLF)
 
         // リクエストヘッダーからContent-Lengthを取得する
         val contentLength = headerLineArray.contentLength()

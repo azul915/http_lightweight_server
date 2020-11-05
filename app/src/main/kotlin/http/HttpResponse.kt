@@ -3,6 +3,7 @@ package http
 import java.io.BufferedWriter
 
 class HttpResponse(status: Status) {
+
     private val responseHeaders = mutableMapOf<String, String>()
     private var responseBody: String = ""
 
@@ -15,9 +16,9 @@ class HttpResponse(status: Status) {
     }
 
     fun writeOut(bufferedWriter: BufferedWriter) {
-        val CRLF = "\r\n"
-        this.responseHeaders.forEach { (key, value) ->  bufferedWriter.write("$key: $value$CRLF") }
-        bufferedWriter.write(CRLF)
+
+        this.responseHeaders.forEach { (key, value) ->  bufferedWriter.write("$key: $value${Constants.CRLF}") }
+        bufferedWriter.write(Constants.CRLF)
         bufferedWriter.write(this.responseBody ?: "")
     }
 

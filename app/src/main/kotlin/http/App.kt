@@ -10,17 +10,11 @@ import java.net.Socket
 
 fun main(args: Array<String>) {
 
-    // on Docker
-    //val HOST = "0.0.0.0"
-    val HOST = "localhost"
-    val PORT = 8080
-    val CRLF = "\r\n"
-
     println("start >>>")
 
     // Socket生成、IPとPort指定、SO_REUSEADDRオプション有効化
     val serverSocket = ServerSocket()
-    serverSocket.bind(InetSocketAddress(HOST, PORT))
+    serverSocket.bind(InetSocketAddress(Constants.HOST, Constants.PORT))
     serverSocket.reuseAddress = true
     println("listening on... ${serverSocket.localSocketAddress}")
 
