@@ -38,10 +38,10 @@ fun main(args: Array<String>) {
         println(request.bodyText())
 
         // レスポンス
-        bw.write("HTTP/1.1 200 OK$CRLF")
-        bw.write("Content-Type: text/html$CRLF")
-        bw.write(CRLF)
-        bw.write("<h1>Test Kotlin!!</h1>")
+        val response = HttpResponse(Status.OK)
+        response.addResponseHeader("Content-Type", ContentType.TEXT_HTML.toString())
+        response.setResponseBody("<h1>Test Kotlin!!</h1>")
+        response.writeOut(bw)
         bw.flush()
 
 
