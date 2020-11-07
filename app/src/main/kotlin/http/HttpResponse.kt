@@ -42,7 +42,7 @@ class HttpResponse(status: Status) {
         bufferedWriter.write(Constants.CRLF)
 
         val file = this.responseBodyFile
-        val fileStr = BufferedReader(FileReader(file)).use { br -> br.readText() }
+        val fileStr = BufferedReader(FileReader(file)).use { it.readText() }
         this.setResponseBody(fileStr)
 
         writeResponseBody(bufferedWriter)
