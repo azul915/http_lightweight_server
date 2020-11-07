@@ -1,4 +1,4 @@
-package http
+package http.request
 
 import java.io.BufferedReader
 import java.io.InputStream
@@ -17,6 +17,11 @@ class HttpRequest(private val inputStream: InputStream) {
     fun headerText(): String = requestHeaderText
 
     fun bodyText(): String = requestBodyText
+
+    fun isGetMethod(): Boolean {
+        val method = this.requestHeaderText.split(Constants.CRLF)[0].split(" ")[0]
+        return method == "GET"
+    }
 
     private fun readRequestHeader(bufferedReader: BufferedReader): String {
 

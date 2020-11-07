@@ -3,10 +3,10 @@
  */
 package http
 
+import http.request.HttpRequest
 import java.io.*
 import java.net.InetSocketAddress
 import java.net.ServerSocket
-import java.net.Socket
 
 fun main(args: Array<String>) {
 
@@ -21,23 +21,36 @@ fun main(args: Array<String>) {
     try {
         // 受信
         val socket = serverSocket.accept()
-        val ins = socket.getInputStream()
-        val bw = BufferedWriter(OutputStreamWriter(socket.getOutputStream()))
-        val request = HttpRequest(ins)
 
-        // リクエストヘッダー出力
-        println(request.headerText())
+        socket.getOutputStream().use { ops ->
+            socket.getInputStream().use { ips ->
 
-        // リクエストボディー出力
-        println(request.bodyText())
+                val bw = BufferedWriter(OutputStreamWriter(ops))
+                val request = HttpRequest(ips)
 
-        // レスポンス
-        val response = HttpResponse(Status.OK)
-        response.addResponseHeader("Content-Type", ContentType.TEXT_HTML.toString())
-        response.setResponseBody("<h1>Test Kotlin!!</h1>")
-        response.writeOut(bw)
-        bw.flush()
+                // リクエストヘッダ
+                println(request.headerText())
 
+                // リクエストボディ
+                println(request.bodyText())
+
+                // レスポンス
+                val response = HttpResponse(Status.OK)
+
+                if (request.isGetMethod()) {
+
+                    response.addResponseHeader("Content-Type", ContentType.TEXT_HTML.toString())
+                    response.setResponseBodyFile(File("/Users/aoyagi/http/app/src/main/resources/test.txt"))
+                    response.writeFileOut(bw)
+
+                } else {
+
+                    response.addResponseHeader("Content-Type", ContentType.TEXT_HTML.toString())
+                    response.setResponseBody("<h1>Test Kotlin!!</h1>")
+                    response.writeOut(bw)
+                }
+            }
+        }
 
     } catch (e: IOException) {
         println("CAUSE: ${e.cause}, MESSAGE: ${e.message}")
@@ -46,4 +59,3 @@ fun main(args: Array<String>) {
     println("<<< end")
 
 }
-
